@@ -1,0 +1,67 @@
+---
+- name: Install WireGuard
+  apt:
+    name: wireguard
+    state: present
+    update_cache: yes
+
+- name: Create directories for wireguard
+  file:
+    path: "{{ root_directory }}/keys"
+    state: directory
+    recurse: yes
+
+- name: Ensure ipv4 forward
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forwar
+    value: '1'
+    state: present
+
+- name: Check config files exist
+  stat:
+    path: "{{ root_directory }}/pubkey"
+  register: pubkey
+
+
+- name: Generate public and private key and config
+  block:
+    - name: Generate public and private key
+      shell: |
+        wg genkey | tee {{ root_directory }}/privatekey | wg pubkey > {{ root_directory }}/pubkey
+
+    - name: Get pubkey
+      shell: cat {{ root_directory }}/pubkey
+      register: pubkey_content
+
+    - name: Get privatekey
+      shell: cat {{ root_directory }}/privatekey
+      register: privatekey_content
+
+    - set_fact:
+        private_key_content: "{{ privatekey_content.stdout }}"
+        public_key_content: "{{ pubkey_content.stdout }}"
+
+    - name: Create wireguard's configurations template
+      template:
+        src: "{{ item }}.j2"
+        dest: "/etc/wireguard/{{ item }}"
+      loop:
+        - nat-routing.sh
+        - nat-remove.sh
+        - wg0.conf
+
+    - name: Make scripts executable
+      file:
+        path: "/etc/wireguard/{{ item }}"
+        mode: a+x
+      loop:
+        - nat-routing.sh
+        - nat-remove.sh
+  when: not pubkey.stat.exists
+
+- name: stop wireguard
+  shell: wg-quick down wg0
+  ignore_errors: yes
+
+- name: start wireguard
+  shell: wg-quick up wg0

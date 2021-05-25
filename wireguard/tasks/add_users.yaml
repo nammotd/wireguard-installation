@@ -1,0 +1,37 @@
+---
+- name: Check whether user exists
+  stat:
+    path: "/etc/wireguard/keys/{{ user }}.conf"
+  register: user_key
+
+- name:
+  block:
+    - name: Stop wireguard
+      shell: wg-quick down wg0
+      ignore_errors: yes
+
+    - name: Create add_users.py
+      copy:
+        src: files/add_users.py
+        dest: /tmp/add_users.py
+
+    - name: Create client config and adjust server config
+      shell: |
+        /usr/bin/python3 /tmp/add_users.py "{{ wireguard_public_ip }}:{{ wireguard_port }}" {{ root_directory }}  {{ wireguard_interface }} {{ wireguard_cidr }} {{ user }}
+
+    - name: Show {{ user }} config
+      shell: "cat {{ root_directory }}/keys/{{ user }}.conf"
+      register: config
+
+    - debug: var=config
+
+  when: not user_key.stat.exists
+
+- name: Make sure wireguard up
+  shell: wg-quick up wg0
+  ignore_errors: yes
+
+- name: Fetch config to localhost
+  ansible.builtin.fetch:
+    src: "{{ root_directory }}/keys/{{ user }}.conf"
+    dest: "{{ user }}.conf"

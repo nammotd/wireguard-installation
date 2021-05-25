@@ -1,0 +1,4 @@
+---
+# handlers file for wireguard
+- name: restart wireguard
+  shell: wg-quick down wg0 && wg-quick up wg0

@@ -1,0 +1,4 @@
+dependencies:
+  - role: common/set-python3
+    vars:
+      pip_packages: ['ipaddress', 'jinja2', 'wgconfig']

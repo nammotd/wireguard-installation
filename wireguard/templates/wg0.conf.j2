@@ -1,0 +1,7 @@
+[Interface]
+Address = {{ wireguard_cidr }}
+SaveConfig = false
+ListenPort = {{ wireguard_port }}
+PrivateKey = {{ private_key_content }}
+PostUp = {{ root_directory }}/nat-routing.sh
+PostDown = {{ root_directory }}/nat-remove.sh

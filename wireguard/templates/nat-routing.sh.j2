@@ -1,0 +1,7 @@
+#!/bin/bash
+iptables -I INPUT 1 -i {{ wireguard_interface }} -j ACCEPT
+iptables -t nat -I POSTROUTING 1 -s {{ wireguard_cidr }} -o {{ private_network_interface }} -j MASQUERADE
+iptables -I FORWARD 1 -i {{ private_network_interface }} -o {{ wireguard_interface }} -j ACCEPT
+iptables -I FORWARD 1 -i {{ wireguard_interface }} -o {{ private_network_interface }} -j ACCEPT
+iptables -I INPUT 1 -i {{ private_network_interface }} -p udp --dport {{ wireguard_port }}
+
