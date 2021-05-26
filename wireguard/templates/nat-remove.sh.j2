@@ -1,8 +1,5 @@
 #!/bin/bash
-
-iptables -D INPUT -i {{ wireguard_interface }} -j ACCEPT
-iptables -D FORWARD -i {{ private_network_interface }} -o {{ wireguard_interface }} -j ACCEPT
-iptables -D FORWARD -i {{ wireguard_interface }} -o {{ private_network_interface }} -j ACCEPT
-iptables -D INPUT -i {{ private_network_interface }} -p udp -m udp --dport {{ wireguard_port }}
-iptables -t nat -I POSTROUTING -s {{ wireguard_cidr }} -o {{ private_network_interface }} -j MASQUERADE
-
+iptables -D FORWARD -i {{ wireguard_interface }} -j ACCEPT;
+{% for net in network_interface %}
+iptables -t nat -D POSTROUTING -o {{ net }} -j MASQUERADE;
+{% endfor %}

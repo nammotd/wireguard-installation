@@ -1,7 +1,7 @@
 ---
 root_directory: /etc/wireguard
 wireguard_cidr: "10.0.1.0/24"
-wireguard_public_ip: "173.231.252.120"
+wireguard_public_ip: ""
 wireguard_port: 51820
 wireguard_interface: wg0
-private_network_interface: ens3
+network_interface: []

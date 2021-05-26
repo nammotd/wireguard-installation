@@ -13,7 +13,7 @@
 
 - name: Ensure ipv4 forward
   ansible.posix.sysctl:
-    name: net.ipv4.ip_forwar
+    name: "net.ipv4.ip_forward"
     value: '1'
     state: present
 
@@ -21,7 +21,6 @@
   stat:
     path: "{{ root_directory }}/pubkey"
   register: pubkey
-
 
 - name: Generate public and private key and config
   block:

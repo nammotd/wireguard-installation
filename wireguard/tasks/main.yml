@@ -1,3 +1,5 @@
 ---
 - include_tasks: install.yaml
-- include_tasks: add_users.yaml
+- import_tasks: add_users.yaml
+  tags:
+    - add-user
